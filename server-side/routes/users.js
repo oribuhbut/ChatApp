@@ -3,7 +3,7 @@ var router = express.Router();
 var nodemailer = require('nodemailer');
 var mysql = require('mysql');
 var response = require('./../modules/response');
-
+var key;
 var con = mysql.createConnection({
   host: "localhost",
   user: "root",
