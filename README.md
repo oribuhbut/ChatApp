@@ -1,5 +1,5 @@
 # ChatApp
-Chat Application by Ori Buhbut,
+Chat Application by Ori Buhbut. MY LINKEDIN :https://linkedin.com/in/ori-buhbut-492820194/
 
 # Getting Started
 clone repository
