@@ -38,7 +38,7 @@ click admin in MySQL row. //you should see a new browser open with the link http
 
 create new database called "chatdb" select utf8_general_ci and click create
 
-import the file from the database folder called "chatdb (3).sql"
+import the file from the database folder called "chatdb.sql"
 
 ///////////////////////////////////////////////////////////
 
