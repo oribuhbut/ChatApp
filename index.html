@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.2/css/all.css">
+    <link rel="stylesheet" href="./style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <title>Login</title>
+</head>
+<body>
+<div id="myModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-centered ">
+        <div class="modal-content">
+                <i style="text-align: right; font-weight:500; font-size:20px; color:black;" class="fa fa-times-circle" data-dismiss="modal"></i>
+            <div class="modal-body">
+                <img id="modalImage" style="width: 360px; height: 360px;" src="" class="img-fluid">
+            </div>
+        </div>
+    </div>
+</div>
+    <div class="container">
+        <div class="tabs-area">
+        <div class="row justify-content-center tab-item tab-item-1 active">
+            <div class="col-md-4 login">
+                    <h3>Gemini Chat</h3>
+                <div class="form-group">
+                    <label>שם משתמש</label>
+                    <input id="loginUserName" type="text" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label>סיסמה</label>
+                    <input id="loginPassword" type="password" class="form-control">
+                </div>
+                <button id="loginButton" class="btn btn-success">התחבר</button>
+                <br>
+                <span>עדין לא נרשמת ?</span> <span style="text-decoration:underline;" id="loginBtn">הירשם עכשיו</span>
+                <br></br>
+                <div style="display: none;" id="alertMessage1" class="alert alert-danger" role="alert"><i class="fa fa-exclamation-circle"></i> <b>שגיאה:</b> <span></span></div>
+            </div>
+        </div>
+        <div class="row justify-content-center tab-item tab-item-2">
+                <div class="col-md-4 login">
+                    <div class="form-group">
+            <label>שם</label>
+            <input id="name" type="text" class="form-control">
+                    </div>
+                    <div class="form-group">
+            <label>שם משתמש</label>
+            <input id="userName" type="text" class="form-control">
+                    </div>
+                    <div class="form-group">
+            <label>סיסמה</label>
+            <input id="password" type="text" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>מין</label>
+                        <select id="gender" class="custom-select">
+                            <option value="Male">זכר</option>
+                            <option value="Female">נקבה</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>כתובת אימייל</label>
+                        <input id="email" type="email" class="form-control" placeholder="e.m youremail@gmail.com">
+                        <br>
+                        <button id="emailButton" class="btn btn-info">שלחו לי קוד אימות</button>
+                        <input style="display: none;" class="form-control" placeholder="הקלד קוד אימות" id="emailConfirm" type="text">
+                    </div>
+                    <div class="form-group">
+                        <div class="upload-btn-wrapper">
+                            <div class="btn btn-success">תמונה</div>
+                            <input  type="file" name="myfile" onchange="previewFile()" id="photo" />
+                        </div>
+                        <br>
+                        <br>
+                        <img id="previewImg" src="" height="130" width="120" style="border-radius: 50%;" alt="">
+                    </div>
+                    <button id="registerButton" class="btn btn-success">הירשם</button>
+                    <br></br>
+                    <div style="display: none;" id="alertMessage2" class="alert alert-danger" role="alert"><i class="fa fa-exclamation-circle"></i> <b>שגיאה:</b> <span></span></div>
+                </div>
+            </div>
+            <div class="row tab-item tab-item-3">
+            <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                        <div class="modal-content carouselClass">
+                                <div class="modal-header justify-content-center">
+                                   <h5 style="display:none;" class="modal-title display-4" id="animate">Its A Match!!</h5>
+                                </div>
+                        <div class="modal-body" id="carouselModal">
+                                <div id="carouselExampleSlidesOnly" class="carousel slide" data-interval="false">
+                                    <div class="carousel-inner" id="carouselInner"></div>
+                                </div>
+                        </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-2 text-left" style="font-weight: 600px;font-size: 24px;"><i class="fa fa-arrow-left LogOutClass" id="logOutFunction"></i>התנתקות</div>
+                <div class="col-md-4">
+                        <h4 id="userTitleName"></h4>
+                        <img id="profileImg" src="" style="width:300px;height: 300px; margin-left:10px;border-radius: 50%;"/>
+                        <div class="form">
+                            <br>
+                            <div onclick="searchNewContact()" class="btn btn-info"  data-toggle="modal" data-target="#exampleModalCenter">חפש אנשים חדשים</div>
+                            <br></br>
+                            <div style="display: none;" id="alertMessage3" class="alert alert-info" role="alert"><i style="color: gray;" class="fa fa-sad-tear"></i> <b>אופס:</b> <span></span></div>
+                        </div>
+                        <h4>אנשי קשר</h4>
+                        <ul id="chatUsersList" class="list-group">
+                        </ul>
+                        <br>
+                    </div>
+                    <div class="col-md-12 chatClass">
+                       <h3 id="contactName" style="text-align: center;"></h3>
+                        <div class="messagesClass" id="messages"></div>
+                        <i id="typeCheck" style="font-size:20px;" class="fa fa-comment-dots myclass"></i>
+                        <div class="form-group">
+                                <input id="messageContent" class="form-control input1" type="text">
+                        </div>
+                        <i id="sendMessage" class="fas fa-paper-plane button1"></i>
+                    </div>
+            </div>
+        </div>
+    </div>
+    <script src="js.js"></script>
+</body>
+</html>
