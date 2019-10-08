@@ -63,7 +63,8 @@ function previewFile() {
 
 // register button
 $("#loginBtn").on("click",function(){
-$("#email").val("");
+$("#email").show();
+$("#email").val("")
 $("#emailConfirm").hide(500);
 $("#emailButton").show();
 $("#name").val("");
@@ -227,11 +228,13 @@ $("#registerButton").on("click",function(){
                 $("#emailButton").text("שלח שוב");
                 return;
             }
+            $("#email").val("");
+            $("#emailConfirm").hide();
+            $("#emailButton").show();
             $("#previewImg").attr("src","");
             $("#alertMessage2").hide();
             $(".tab-item-2").hide()
             $(".tab-item-1").show()
-            $("#emailConfirm").val("");
         },
         error:function(xhr){
 console.log("Error",xhr);
