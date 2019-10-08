@@ -14,7 +14,6 @@ in visual studio:
 
 * SELECT WHERE TO LOCATE IT AND PRESS "SELECT REPOSITORY LOCATION"
 
-///////////////////////////////////////////////////////////
 
 ## run server:
 
@@ -24,7 +23,6 @@ in visual studio:
 
 //** now server running in localhost:3000 **//
 
-///////////////////////////////////////////////////////////
 
 ## run database:
 
@@ -40,7 +38,6 @@ in visual studio:
 
 * import the file from the database folder called "chatdb.sql"
 
-///////////////////////////////////////////////////////////
 
 ## open the app:
 
