@@ -4,8 +4,15 @@ Chat Application by Ori Buhbut,
 # Getting Started
 clone repository
 
-git clone https://github.com/oribuhbut/ChatApp
+in visual studio:
 
+CTRL+SHIFT+P
+
+git clone
+
+https://github.com/oribuhbut/ChatApp
+
+SELECT WHERE TO LOCATE IT AND PRESS "SELECT REPOSITORY LOCATION"
 
 ///////////////////////////////////////////////////////////
 
