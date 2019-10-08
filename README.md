@@ -11,7 +11,9 @@ run server:
 
 cd server-side
 
-npm start //** now server running in localhost:3000 **//
+npm start 
+
+//** now server running in localhost:3000 **//
 
 ///////////////////////////////////////////////////////////
 
