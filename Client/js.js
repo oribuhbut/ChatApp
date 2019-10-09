@@ -2,7 +2,6 @@
 var tempObj = {};
 var tempImg =""
 var tempId;
-var tempLength;
 var socket;
 
 $(document).ready(function(){
@@ -370,18 +369,15 @@ $.ajax({
         tempId = result.data[0].id;
         $("#contactName").text(username)
             let data = JSON.parse(result.data[0].users_messages)
-            if(data!=null){
-                tempLength = data.length;
-            }
         $(".chatClass").show(500);
-        $('#messages').stop().animate({
-            scrollTop: $('#messages')[0].scrollHeight
-          }, 600);
           $("html, body").animate({ scrollTop: $(document).height() }, "slow");
           if(result.data[0].users_messages==null){
             $("#messages").html("")
             return;
         }
+        $('#messages').animate({
+            scrollTop: $('#messages')[0].scrollHeight
+    }, 600);
         printMessages(data);
     },
     error:function(xhr){
@@ -404,14 +400,10 @@ $.ajax({
         let data = JSON.parse(result.data[0].users_messages);
         printMessages(data);
         socket.emit('message',tempId)
-        $('#messages').stop().animate({
-            scrollTop: $('#messages')[0].scrollHeight
-          }, 600);
     },
     error:function(xhr){
         console.log("Error",xhr);
     }
-
 })
 $("#messageContent").val("");
 })
@@ -446,13 +438,11 @@ function checkForNewMessages(id)
                 return;
             }
             let data = JSON.parse(result.data[0].users_messages)
-            if(tempLength<data.length)
-            {
-printMessages(data);
-$('#messages').stop().animate({
-    scrollTop: $('#messages')[0].scrollHeight
-  }, 600);
-  tempLength = data.length;
+            if(tempId==id){
+                printMessages(data);
+                $('#messages').stop().animate({
+                    scrollTop: $('#messages')[0].scrollHeight
+            }, 600);
             }
             
         },
