@@ -369,15 +369,20 @@ $.ajax({
         tempId = result.data[0].id;
         $("#contactName").text(username)
             let data = JSON.parse(result.data[0].users_messages)
-        $(".chatClass").show(500);
+        $(".chatClass").show(500,function(){
+            $('#messages').animate({
+                scrollBottom:$('#messages')[0].scrollHeight
+        },function(){
+            $('#messages').animate({
+                scrollTop:$('#messages')[0].scrollHeight
+        }, 600);
+        });
+        });
           $("html, body").animate({ scrollTop: $(document).height() }, "slow");
           if(result.data[0].users_messages==null){
             $("#messages").html("")
             return;
         }
-        $('#messages').animate({
-            scrollTop: $('#messages')[0].scrollHeight
-    }, 600);
         printMessages(data);
     },
     error:function(xhr){
