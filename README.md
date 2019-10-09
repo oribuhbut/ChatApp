@@ -38,6 +38,9 @@ in visual studio:
 
 * import the file from the database folder called "chatdb.sql"
 
+* delete the rows "id" in messages,users,users_contacts tables and add new one to each one (id int(11) AUTO_INCREMEN). make sure that is 
+
+  the first row in each table.
 
 ## open the app:
 
