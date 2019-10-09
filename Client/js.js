@@ -1,15 +1,25 @@
-var interval;
+
 var tempObj = {};
 var tempImg =""
 var tempId;
 var tempLength;
-// var secondId;
-
+var socket;
 
 $(document).ready(function(){
+    socket = io('http://localhost:3000');
+    socket.on('connect',function(){
+        console.log("connected")
+    })
+    socket.on('newmessage',function(id){
+        checkForNewMessages(id)
+        console.log("checking for new messages")
+    })
+    socket.on('newmatch',function(){
+        getUsers(tempObj.username);
+        console.log(tempObj)
+    })
     checkIfUserLogged()
     $(".active").css("display","block");
-    clearInterval(interval);
 })
 
 //check if user is logged
@@ -150,7 +160,6 @@ $("#logOutFunction").on("click",function(){
     $(".tab-item-1").show();
     $(".chatClass").hide();
     tempId=null;
-    clearInterval(interval);
 })
 
 //email Function
@@ -267,6 +276,7 @@ function addUser(username){
                         getUsers(tempObj.username);
                         searchNewContact();
                     });
+                    socket.emit('match')
                 });
                 return;
             }
@@ -348,7 +358,6 @@ function showProfileImg(url)
 //get messages
 
 function getMessages(username){
-    clearInterval(interval);
     console.log(username)
      tempid = null;
 let myUserName = tempObj.username;
@@ -364,7 +373,6 @@ $.ajax({
             if(data!=null){
                 tempLength = data.length;
             }
-            interval = setInterval(checkForNewMessages,3000)
         $(".chatClass").show(500);
         $('#messages').stop().animate({
             scrollTop: $('#messages')[0].scrollHeight
@@ -395,6 +403,7 @@ $.ajax({
         console.log(result)
         let data = JSON.parse(result.data[0].users_messages);
         printMessages(data);
+        socket.emit('message',tempId)
         $('#messages').stop().animate({
             scrollTop: $('#messages')[0].scrollHeight
           }, 600);
@@ -426,11 +435,11 @@ function printMessages(result){
  }
 }
 
-function checkForNewMessages()
+function checkForNewMessages(id)
 {
     console.log("here")
     $.ajax({
-        url:`http://localhost:3000/users/newMessages/?id=${tempId}`,
+        url:`http://localhost:3000/users/newMessages/?id=${id}`,
         type:"GET",
         success:function(result){
             if(result.data[0].users_messages==null){

@@ -52,7 +52,6 @@ router.get('/', function(req, res, next) {
 })
 
 router.get('/checklog',function(req,res,next){
-  console.log(req.session);
   if(req.session.userDetails){
     response.getResponse(true,false,"user still logged",req.session.userDetails);
     res.json(response.responesMessage());

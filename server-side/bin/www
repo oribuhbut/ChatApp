@@ -7,7 +7,7 @@
 var app = require('../app');
 var debug = require('debug')('chat-project:server');
 var http = require('http');
-
+var io;
 /**
  * Get port from environment and store in Express.
  */
@@ -28,7 +28,16 @@ var server = http.createServer(app);
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
-
+io = require('socket.io')(server);
+io.on('connection', function(socket){
+    socket.on('match',function(){
+      console.log("new match!")
+      io.emit('newmatch')
+    })
+    socket.on('message',function(id){
+      io.emit('newmessage',id)
+    })
+});
 /**
  * Normalize a port into a number, string, or false.
  */
