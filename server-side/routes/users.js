@@ -335,37 +335,4 @@ WHERE id = ${second};`,[message],function(error,result,fields){
 })
 });
 
-router.put('/typing',function(req,res,next){
-let first = req.query.first;
-let second = req.query.second;
-for(let i=0;i<users.length;i++){
-  if(users[i].id == second){
-    for(let x=0;x<users[i].userDetails.length;x++){
-      if(users[i].userDetails[x].id == first){
-        users[i].userDetails[x].typing = true;
-        res.json(users);
-        setTimeout(function(){users[i].userDetails[x].typing = false},3000);
-        return;
-      }
-    }
-  }
-}
-res.end("not-worked")
-})
-
-router.get('/typeCheck',function(req,res,next){
-  let first = req.query.first;
-  let second = req.query.second
-  for(let i=0;i<users.length;i++){
-    if(users[i].id == first){
-      for(let x=0;x<users[i].userDetails.length;x++){
-        if(users[i].userDetails[x].id == second && users[i].userDetails[x].typing == true){
-res.send('user-typing')
-        }
-      }
-    }
-  }
-  res.end("user-not-typing");
-  })
-
 module.exports = router;

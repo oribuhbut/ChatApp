@@ -452,35 +452,3 @@ $('#messages').stop().animate({
         }
     })
 }
-
-// typing function 
-
-// $("#messageContent").on("keyup",function(){
-// $.ajax({
-//     url:`http://localhost:3000/users/typing/?first=${tempObj.id}&second=${secondId}`,
-//     type:"PUT",
-//     success:function(result){
-//     console.log(result);
-//     },
-//     error:function(xhr){
-//         console.log(xhr);
-//     }
-// })
-// });
-
-// function typeFunction(){
-//     $.ajax({
-//         url:`http://localhost:3000/users/typeCheck/?first=${tempObj.id}&second=${secondId}`,
-//         type:"GET",
-//         success:function (result){
-//             if(result == "user-typing"){
-//                 $("#typeCheck").fadeIn(500);
-//                 return;
-//              }
-//              $("#typeCheck").fadeOut(500);
-//         },
-//         error:function(xhr){
-// console.log(xhr);
-//         }
-//     })
-// }
