@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -6,18 +5,41 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.2/css/all.css">
-    <link rel="stylesheet" href="./style.css">
-    <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+    <link rel="stylesheet" href="./style/style.css">
+    <link rel="stylesheet" href="https://loading.io/css/">
+    <!-- JavaScript -->
+<script src="//cdn.jsdelivr.net/npm/alertifyjs@1.12.0/build/alertify.min.js"></script>
+<!-- CSS -->
+<link href="https://fonts.googleapis.com/css?family=Rubik&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.12.0/build/css/alertify.min.css"/>
+<!-- Default theme -->
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.12.0/build/css/themes/default.min.css"/>
+<!-- Semantic UI theme -->
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.12.0/build/css/themes/semantic.min.css"/>
+<!-- Bootstrap theme -->
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.12.0/build/css/themes/bootstrap.min.css"/>
+<!-- 
+    RTL version
+-->
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.12.0/build/css/alertify.rtl.min.css"/>
+<!-- Default theme -->
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.12.0/build/css/themes/default.rtl.min.css"/>
+<!-- Semantic UI theme -->
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.12.0/build/css/themes/semantic.rtl.min.css"/>
+<!-- Bootstrap theme -->
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.12.0/build/css/themes/bootstrap.rtl.min.css"/>
+    <script src="https://geminichat.herokuapp.com/socket.io/socket.io.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
     <title>Login</title>
 </head>
 <body>
+  <div id="loader2" style="display:none; position:fixed; top:50%;left:50%;" class="loader"><div class="lead">טוען...</div></div>
 <div id="myModal" class="modal fade" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-dialog-centered ">
         <div class="modal-content">
-                <i style="text-align: right; font-weight:500; font-size:20px; color:black;" class="fa fa-times-circle" data-dismiss="modal"></i>
+                <i style="text-align: right; font-weight:500; font-size:26px; color:white;" class="fa fa-times-circle" data-dismiss="modal"></i>
             <div class="modal-body">
                 <img id="modalImage" style="width: 360px; height: 360px;" src="" class="img-fluid">
             </div>
@@ -37,17 +59,21 @@
                     <label>סיסמה</label>
                     <input id="loginPassword" type="password" class="form-control">
                 </div>
-                <button id="loginButton" class="btn btn-success">התחבר</button>
+                <button id="loginButton" class="btn">התחבר</button>
                 <br>
-                <span>עדין לא נרשמת ?</span> <span style="text-decoration:underline;" id="loginBtn">הירשם עכשיו</span>
+                <span>עדיין לא נרשמת ?</span> <span style="text-decoration:underline;" id="loginBtn">הירשם עכשיו</span>
                 <br></br>
                 <div style="display: none;" id="alertMessage1" class="alert alert-danger" role="alert"><i class="fa fa-exclamation-circle"></i> <b>שגיאה:</b> <span></span></div>
             </div>
         </div>
         <div class="row justify-content-center tab-item tab-item-2">
+                  <div class="text-left">
+                <i id="returnFromRegister" class="fa fa-arrow-left" style="font-size:24px; padding:10px;"></i>
+            </div>
                 <div class="col-md-4 login">
+                    <h5 class="text-center lead">הרשמה</h5>
                     <div class="form-group">
-            <label>שם</label>
+            <label>שם מלא</label>
             <input id="name" type="text" class="form-control">
                     </div>
                     <div class="form-group">
@@ -57,6 +83,10 @@
                     <div class="form-group">
             <label>סיסמה</label>
             <input id="password" type="text" class="form-control">
+                    </div>
+                    <div class="form-group">
+            <label>גיל</label>
+            <input id="age" type="date" value="2000-10-10" class="form-control">
                     </div>
                     <div class="form-group">
                         <label>מין</label>
@@ -69,13 +99,11 @@
                         <label>כתובת אימייל</label>
                         <input id="email" type="email" class="form-control" placeholder="e.m youremail@gmail.com">
                         <br>
-                        <button id="emailButton" class="btn btn-info">שלחו לי קוד אימות</button>
-                        <input style="display: none;" class="form-control" placeholder="הקלד קוד אימות" id="emailConfirm" type="text">
                     </div>
                     <div class="form-group">
                         <div class="upload-btn-wrapper">
                             <div class="btn btn-success">תמונה</div>
-                            <input  type="file" name="myfile" onchange="previewFile()" id="photo" />
+                            <input type="file" name="myfile" onchange="previewFile()" id="photo1" />
                         </div>
                         <br>
                         <br>
@@ -84,14 +112,17 @@
                     <button id="registerButton" class="btn btn-success">הירשם</button>
                     <br></br>
                     <div style="display: none;" id="alertMessage2" class="alert alert-danger" role="alert"><i class="fa fa-exclamation-circle"></i> <b>שגיאה:</b> <span></span></div>
+                    <div id="loader1" style="display:none" class="loader"><div class="lead">טוען...</div></div>
                 </div>
             </div>
             <div class="row tab-item tab-item-3">
+                <div id="loader" style="display:none; position:fixed; top:50%;left:50%;" class="loader"><div class="lead">טוען...</div></div>
             <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered" role="document">
                         <div class="modal-content carouselClass">
+                           <div id="exitIcon"></div>
                                 <div class="modal-header justify-content-center">
-                                   <h5 style="display:none;" class="modal-title display-4" id="animate">Its A Match!!</h5>
+                                   <div class="modal-title text-center lead" style="font-size:28; display:none; color:white;" id="animate"></div>
                                 </div>
                         <div class="modal-body" id="carouselModal">
                                 <div id="carouselExampleSlidesOnly" class="carousel slide" data-interval="false">
@@ -101,33 +132,79 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-2 text-left" style="font-weight: 600px;font-size: 24px;"><i class="fa fa-arrow-left LogOutClass" id="logOutFunction"></i>התנתקות</div>
-                <div class="col-md-4">
-                        <h4 id="userTitleName"></h4>
-                        <img id="profileImg" src="" style="width:300px;height: 300px; margin-left:10px;border-radius: 50%;"/>
+                <div class="d-flex justify-content-between">
+                <div class="text-left">
+                    <i class="fas fa-power-off" style="font-weight: 600px;font-size: 24px; padding:10px;" id="logOutFunction"></i>
+                </div>
+                <div class="text-right">
+                    <i id="editUser" class="fas fa-user-cog" style="font-weight: 600px;font-size: 24px; padding:10px;"></i>
+                </div>
+                </div>
+                <div class="col-md-4 justify-content-center">
+                        <h4 class="text-center lead" id="userTitleName"></h4>
+                        <img class="mx-auto d-block" id="profileImg" src="" style="width:300px;height: 300px;border-radius: 50%;"/>
                         <div class="form">
                             <br>
-                            <div onclick="searchNewContact()" class="btn btn-info"  data-toggle="modal" data-target="#exampleModalCenter">חפש אנשים חדשים</div>
+                            <div class="text-center">
+                                <div onclick="searchNewContact()" id="searchNewPeopleButton" class="btn btn-info"  data-toggle="modal" data-target="#exampleModalCenter">חפש אנשים חדשים</div>
+                            </div>
                             <br></br>
                             <div style="display: none;" id="alertMessage3" class="alert alert-info" role="alert"><i style="color: gray;" class="fa fa-sad-tear"></i> <b>אופס:</b> <span></span></div>
                         </div>
-                        <h4>אנשי קשר</h4>
-                        <ul id="chatUsersList" class="list-group">
+                        <h4 class="lead text-center">אנשי קשר</h4>
+                            <ul id="chatUsersList" class="list-group d-flex justify-content-center" style="padding:0px;">
                         </ul>
                         <br>
                     </div>
-                    <div class="col-md-12 chatClass">
-                       <h3 id="contactName" style="text-align: center;"></h3>
-                        <div class="messagesClass" id="messages"></div>
-                        <i id="typeCheck" style="font-size:20px;" class="fa fa-comment-dots myclass"></i>
-                        <div class="form-group">
-                                <input id="messageContent" class="form-control input1" type="text">
+            </div>
+        <div class="row tab-item tab-item-4" style="margin:0px !important; overflow: hidden !important;">
+            <div class="col-md-12 chatClass full-height">
+                <div id="chatHeader" class="bg-dark text-white lead d-flex justify-content-between">
+                    <img id="contactImg" src="" style="border-radius:50%; width:65px; height:65px; padding:5px;" data-toggle="modal" data-target="#myModal"/>
+                    <div id="contactName" class="text-center lead text-white" style="padding:8px"></div>
+                    <i id="backToMainPage" class="fa fa-arrow-left text-left" style="font-size:24px; padding:8px"></i>
+                </div>
+                    <div class="messagesClass" id="messages"></div>
+                        <div class="input-group">
+                <textarea id="messageContent" class="form-control lead" type="text" placeholder="..Type Something here" style="padding-right:20px; border:0px; border-radius:0px; position:relative; background-color:rgb(242, 242, 242);"></textarea>
+                <span class="input-group-addon" style="padding:10px; position:absolute; left:8px;top:8px;z-index:10;"><i class="fa fa-paper-plane" style="display:none; cursor:pointer;" id="sendMessage"></i></span>
                         </div>
-                        <i id="sendMessage" class="fas fa-paper-plane button1"></i>
+            </div>
+        </div>
+        <div class="row justify-content-center tab-item tab-item-5">
+            <div class="text-left">
+                <i id="returnFromEdit" class="fa fa-arrow-left" style="font-size:24px; padding:10px;"></i>
+            </div>
+            <div class="form">
+                <div class="form-group text-center">
+                    <img id="previewEditImg" src="" height="300px;" width="300px;" style="border-radius: 50%;" alt="">
+                    <br>
+                    <br>
+                     <div id="loader" style="display:none" class="loader"><div class="lead">טוען...</div></div>
+                    <div class="upload-btn-wrapper">
+                        <div id="loadingTrigger" class="btn btn-success">ערוך תמונה</div>
+                        <input id="photo2"  type="file" name="myfile" onchange="editPhoto()"/>
                     </div>
+                    <br></br>
+                        <h5>אני מעוניין להכיר:</h5>
+                    <div class="custom-control custom-checkbox">
+                      <input type="checkbox" class="custom-control-input" id="checkbox1" checked>
+                      <label class="custom-control-label" for="checkbox1">גברים</label>
+                    </div>
+                    <div class="custom-control custom-checkbox">
+                      <input type="checkbox" class="custom-control-input" id="checkbox2" checked>
+                      <label class="custom-control-label" for="checkbox2">נשים</label>
+                    </div>
+                </div>
+                <div class="form-group text-center">
+                    <div id="deleteAccount" class="btn btn-danger">מחק את החשבון שלי</div>
+                    <br></br>
+                    <div class="alert alert-danger" role="alert"><b>לחיצה על "מחק חשבון" תמחק את החשבון מידית</b> <span></span></div>
+                </div>
+                </div>
             </div>
         </div>
     </div>
-    <script src="js.js"></script>
+    <script src="./js/js.js"></script>
 </body>
 </html>
