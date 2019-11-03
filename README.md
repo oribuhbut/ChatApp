@@ -2,57 +2,16 @@
 Chat Application by Ori Buhbut. MY LINKEDIN :https://linkedin.com/in/ori-buhbut-492820194/
 
 # Getting Started
-## clone repository
 
-in visual studio:
-
-* CTRL+SHIFT+P
-
-* git clone
-
-* https://github.com/oribuhbut/ChatApp
-
-* SELECT WHERE TO LOCATE IT AND PRESS "SELECT REPOSITORY LOCATION"
+The chat is running at www.geminichatapp.com.
 
 
-## run server:
+# register
 
-* cd server-side
+press on "register and fill the form.
 
-* npm start 
+login into your new account and search for new people around.
 
-//** now server running in localhost:3000 **//
-
-
-## run database:
-
-* run xampp
-
-* Start Apache
-
-* Start MySQL
-
-* click admin in MySQL row. //you should see a new browser open with the link http://localhost/phpmyadmin/
-
-* create new database called "chatdb" select utf8_general_ci and click create
-
-* import the file from the database folder called "chatdb.sql"
-
-* delete the rows "id" in messages,users,users_contacts tables and add new one to each one (id int(11) AUTO_INCREMENT).
-
-  make sure that is the first row in each table.
-
-## open the app:
-
-* open in the folder Client the index.html file.
-
-* register to the chat.
-
-* login to the chat.
-
-* look for new friends. (if there isn't create a new user and talk from different browsers)
-
-* start chatting.
-
+if you have a new match start conversation!
 
 
