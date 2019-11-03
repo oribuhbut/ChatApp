@@ -4,10 +4,10 @@ var mysql = require('mysql');
 var response = require('./../modules/response');
 var con = mysql.createPool({
   connectionLimit : 100,
-  host: "us-cdbr-iron-east-05.cleardb.net",
-  user: "ba9bfd6c223252",
-  password: "cd294583",
-  database:"heroku_4317d32f10002e9",
+  host: "",
+  user: "",
+  password: "",
+  database:"",
   charset:"utf8mb4"
 });
 
