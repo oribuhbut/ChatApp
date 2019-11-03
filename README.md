@@ -8,10 +8,10 @@ The chat is running at www.geminichatapp.com.
 
 # register
 
-press on "register and fill the form.
+press on "register" and fill the form.
 
 login into your new account and search for new people around.
 
-if you have a new match start conversation!
+if you have a new match start to chat!
 
 
