@@ -1,33 +1,15 @@
 var express = require('express');
 var router = express.Router();
-var nodemailer = require('nodemailer');
 var mysql = require('mysql');
 var response = require('./../modules/response');
-var key;
-var con = mysql.createConnection({
-  host: "localhost",
-  user: "root",
-  password: "",
-  database:"chatdb"
+var con = mysql.createPool({
+  connectionLimit : 100,
+  host: "us-cdbr-iron-east-05.cleardb.net",
+  user: "ba9bfd6c223252",
+  password: "cd294583",
+  database:"heroku_4317d32f10002e9",
+  charset:"utf8mb4"
 });
-
-var transporter = nodemailer.createTransport({
-  service:'gmail',
-  auth: {
-    user:'moshebuhbutbu@gmail.com',
-    pass:'fqnyngvchgnjsked'
-  },
-  tls: {
-    rejectUnauthorized: false
-}
-});
-
-var mailOptions = {
-  from:'buhbutbu@gmail.com',
-  to:"",
-  subject:'Account Configuration',
-  text:""
-};
 
 /* GET users listing. */
 router.get('/', function(req, res, next) {
@@ -107,34 +89,6 @@ con.query(`SELECT * FROM messages WHERE id = ${id}`,function(error,result){
 })
 })
 
-
-router.put('/email', function(req, res, next) {
-  key="";
-  key = parseInt(Math.random()*9999) + 1000;
-  mailOptions.text="";
-  mailOptions.text ="This message is from GeminiChat, Your register one time key is : " + String(key) + " .... Have Fun!";
-  mailOptions.to="";
-  let email = req.query.email;
-  if(email.length<1){
-    response.getResponse(false,true,"חלק מהשדות חסרים",[])
-    res.json(response.responesMessage());
-    return;
-  }
-  mailOptions.to = email;
-transporter.sendMail(mailOptions, function(error, info){
-  if (error) {
-    response.getResponse(false,true,"מייל לא תקין",error)
-    res.json(response.responesMessage());
-    return;
-  } else {
-response.getResponse(true,false,"מייל נשלח",info.response)
-    res.json(response.responesMessage());
-  }
-});
-})
-
-
-
 router.put('/', function(req, res, next) {
 
   let useremail = req.body.useremail
@@ -143,17 +97,13 @@ router.put('/', function(req, res, next) {
   let password = req.body.password;
   let gender = req.body.gender;
   let photo = req.body.photo;
-  let email = req.body.email;
+  let age = req.body.age;
 
-   if(email != key){
-     res.end("Email Key Is Wrong");
-     return;
-   }
-
-  con.query('INSERT INTO users (name,username,password,gender,email,photo) VALUES(?,?,?,?,?,?)',[name,username,password,gender,useremail,photo],function(error,result,fields){
+  con.query('INSERT INTO users (name,username,password,gender,email,photo,age) VALUES(?,?,?,?,?,?,?)',[name,username,password,gender,useremail,photo,age],function(error,result,fields){
     if(error){
       response.getResponse(false,true,"שם משתמש או אימייל כבר בשימוש",error)
       res.json(response.responesMessage());
+      console.log(error)
       return;
     }
     response.getResponse(true,false,"משתמש נרשם בהצלחה",result)
@@ -163,21 +113,32 @@ router.put('/', function(req, res, next) {
 
 router.get('/contacts',function(req,res,next){
   let username = req.query.username;
-  con.query('SELECT contact_name FROM users_contacts WHERE user_name=? and status=1',[username],function(error,result1){
+  let filter = req.query.filter;
+  let filterText;
+  if(filter == "none"){
+filterText = "'Male','Female'"
+  }
+  if(filter == "Male"){
+    filterText = "'Male'"
+  }
+  if(filter == "Female"){
+    filterText = "'Female'"
+  }
+  con.query('SELECT contact_name FROM users_contacts WHERE user_name=? and status IN(1,2)',[username],function(error,result1){
     if(error){
       response.getResponse(false,true,"",[])
       res.json(response.responesMessage())
       return;
     }
     if(result1.length<1){
-      con.query(`SELECT * FROM users WHERE username !=?`,[username],function(error,result){
+      con.query(`SELECT * FROM users WHERE username !=? and gender IN (${filterText})`,[username],function(error,result){
         if(error){
-          response.getResponse(false,true,"שגיאה",[error])
+          response.getResponse(false,true,"שגיאה",error)
           res.json(response.responesMessage())
           return;
         }
         if(result.length < 1){
-          response.getResponse(false,true,"אין תוצאות",[error])
+          response.getResponse(false,true,"אין תוצאות",error)
           res.json(response.responesMessage())
           return;
         }
@@ -190,13 +151,15 @@ router.get('/contacts',function(req,res,next){
     let text ="";
       for(let i=0;i<result1.length;i++){
         if(i==0){
-          text+= "and username != " + "'"+result1[i].contact_name+"'"
+          text+= "'"+result1[i].contact_name+"'"
         }
         else{
-          text+= " and username != " + "'"+ result1[i].contact_name +"'"
+          text+= ",'"+ result1[i].contact_name +"'"
         }
       }
-    con.query(`SELECT * FROM users WHERE username !=? ${text}`,[username],function(error,result){
+    con.query(`SELECT * FROM users WHERE username NOT IN(${text},'${username}') and gender IN(${filterText})`,function(error,result){
+      console.log("text :", text)
+      console.log("changes apply")
       if(error){
         response.getResponse(false,true,"שגיאה",[])
         res.json(response.responesMessage())
@@ -218,14 +181,40 @@ router.put('/addcontact', function(req, res, next) {
   let contactUsername = req.body.contactUsername;
   let loggedUser = req.body.loggedUser;
   let text = contactUsername+","+loggedUser;
-  con.query('SELECT * FROM users WHERE username=?',[contactUsername],function(error,result,fields){
-    if(result.length == 0){
-      response.getResponse(false,true,"משתמש לא נמצא",error)
+  con.query('SELECT * FROM users_contacts WHERE user_name=? and contact_name=?',[loggedUser,contactUsername],function(error,result){
+    if(error)
+    {
+      response.getResponse(false,true,"error",error)
+      res.json(response.responesMessage())
+      return;
+    }
+    if(result.length > 0 && result[0].status == 1)
+    {
+      response.getResponse(true,false,"you already liked this user",error)
+      res.json(response.responesMessage())
+      return;
+    }
+    if(result.length > 0 && result[0].status == 2)
+    {
+      response.getResponse(true,false,"you already disliked this user",error)
       res.json(response.responesMessage())
       return;
     }
     con.query('SELECT * FROM users_contacts WHERE user_name=? and contact_name=?',[contactUsername,loggedUser],function(error,result,fields){
       if(result.length > 0){
+        console.log("status",result[0].status)
+        if(result[0].status == 2){
+          con.query('UPDATE users_contacts SET status=2 WHERE user_name=? and contact_name=?',[loggedUser,contactUsername],function(error,result,fields){
+            if(error){
+              response.getResponse(false,true,"error",error)
+              res.json(response.responesMessage())
+              return;
+            }
+          response.getResponse(true,false,"the user not like you",result)
+          res.json(response.responesMessage())
+          })
+          return;
+        }
         con.query('UPDATE users_contacts SET status_friend=1 WHERE user_name=? and contact_name=?',[contactUsername,loggedUser],function(error,result){
           if(error){
             response.getResponse(false,true,"error",error)
@@ -273,7 +262,6 @@ router.put('/addcontact', function(req, res, next) {
   });
 });
 
-
 router.get('/messages', function(req, res, next) {
   let first= req.query.first;
   let second = req.query.second;
@@ -289,34 +277,29 @@ con.query(`SELECT * FROM messages WHERE (users=${text1}) OR (users=${text2}) `,f
   res.json(response.responesMessage());
 })
 });
-  router.post('')
 
 router.put('/messages', function(req, res, next) {
  let first = req.query.first;
  let second = req.query.second;
  let message = req.query.message;
  var today = new Date();
- var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
- console.log(typeof(today.getSeconds()))
+ var time = today.getHours() +2 + ":" + today.getMinutes() + ":" + today.getSeconds();
+
  if(today.getMinutes() < 10 ){
-  var time = today.getHours() + ':0' + today.getMinutes() + ":" +today.getSeconds();
+  var time = today.getHours() + 2 + ':0' + today.getMinutes() + ":" +today.getSeconds();
   }
+
   if(today.getSeconds() < 10){
-  var time = today.getHours() + ":" + today.getMinutes() + ":0" + today.getSeconds();
+  var time = today.getHours() + 2 + ":" + today.getMinutes() + ":0" + today.getSeconds();
   }
-  
-  if(today.getHours() == 0){
-    var time = today.getHours() + "0:" + today.getMinutes() + ":" + today.getSeconds();
+
+  if(today.getSeconds() < 10 && today.getMinutes() < 10){
+    var time = today.getHours() + 2 + ":0" + today.getMinutes() + ":0" + today.getSeconds();
   }
 
 con.query(`UPDATE messages
-SET users_messages = IF(
-JSON_TYPE(users_messages) <=> 'ARRAY',
-users_messages,
-JSON_ARRAY()
-),
-users_messages = JSON_ARRAY_APPEND(users_messages,'$',JSON_OBJECT('id',${first},'message',?,'date','${time}'))
-WHERE id = ${second};`,[message],function(error,result,fields){
+SET users_messages = CONCAT(users_messages,',','{"id":${first},"message":"${message}","date":"${time}"}')
+WHERE id = ${second};`,function(error,result,fields){
   if(error){
     response.getResponse(false,true,"לא יכול לשלוח את ההודעה",error);
     res.json(response.responesMessage());
@@ -334,4 +317,134 @@ WHERE id = ${second};`,[message],function(error,result,fields){
 })
 });
 
+
+router.put('/ignorecontact', function(req, res, next) {
+  let contactUsername = req.body.contactUsername;
+  let loggedUser = req.body.loggedUser;
+  con.query('SELECT * FROM users_contacts WHERE user_name=? and contact_name=?',[loggedUser,contactUsername],function(error,result){
+    if(error)
+    {
+      response.getResponse(false,true,"error",error)
+      res.json(response.responesMessage())
+      return;
+    }
+    if(result.length > 0 && result[0].status == 2)
+    {
+      response.getResponse(true,false,"you already disliked this user",error)
+      res.json(response.responesMessage())
+      return;
+    }
+    if(result.length > 0 && result[0].status == 1)
+    {
+      response.getResponse(true,false,"you already liked this user",error)
+      res.json(response.responesMessage())
+      return;
+    }
+    if(result.length > 0 ){
+      con.query('SELECT * FROM users_contacts WHERE user_name=? and contact_name=?',[contactUsername,loggedUser],function(error,result){
+        if(error)
+        {
+          response.getResponse(false,true,"error",error)
+          res.json(response.responesMessage())
+          return;
+        }
+        if(result[0].status == 2){
+          con.query('UPDATE users_contacts SET status=2 WHERE user_name=? and contact_name=?',[loggedUser,contactUsername],function(error,result,fields){
+            if(error){
+              response.getResponse(false,true,"error",error)
+              res.json(response.responesMessage())
+              return;
+            }
+            response.getResponse(true,false,"you both didnt liked each other",error)
+            res.json(response.responesMessage())
+            return;
+          });
+        }
+        if(result[0].status == 1){
+          con.query('UPDATE users_contacts SET status=2 WHERE user_name=? and contact_name=?',[loggedUser,contactUsername],function(error,result,fields){
+            if(error){
+              response.getResponse(false,true,"error",error)
+              res.json(response.responesMessage())
+              return;
+            }
+            con.query('UPDATE users_contacts SET status=2 WHERE user_name=? and contact_name=?',[contactUsername,loggedUser],function(error,result,fields){
+              if(error){
+                response.getResponse(false,true,"error",error)
+                res.json(response.responesMessage())
+                return;
+              }
+            response.getResponse(false,true,"user liked you but you not",error)
+            res.json(response.responesMessage())
+            return;
+            })
+          })
+        }
+      })
+    }
+    if(result.length == 0){
+      con.query('INSERT INTO users_contacts (user_name,contact_name,status,status_friend) VALUES(?,?,2,0)',[loggedUser,contactUsername],function(error,result,fields){
+        if(error){ 
+          response.getResponse(false,true,"לא יכול להסיר את המשתמש",error)
+          res.json(response.responesMessage())
+          return;
+        }
+        con.query('INSERT INTO users_contacts (user_name,contact_name,status,status_friend) VALUES(?,?,0,0)',[contactUsername,loggedUser],function(error,result,fields){
+          if(error){ 
+            response.getResponse(false,true,"לא יכול להסיר את המשתמש",error)
+            res.json(response.responesMessage())
+            return;
+          }
+        response.getResponse(true,false,"משתמש הוסר בהצלחה",result);
+        res.json(response.responesMessage());
+        return;
+        })
+    })
+  }
+})
+});
+
+router.post('/editphoto',function(req,res,next){
+  let photo = req.body.photo;
+  let id = req.body.id;
+  con.query(`UPDATE users SET photo='${photo}' WHERE id=${id}`,function(error,result){
+    if(error){
+      response.getResponse(false,true,"Error",error)
+      res.json(response.responesMessage());
+      return;
+    }
+    response.getResponse(true,false,"photo edited successfully",result)
+    res.json(response.responesMessage());
+    return;
+  })
+})
+
+
+router.delete('/',function(req,res,next){
+  let id = req.body.id;
+  let username = req.body.username;
+  con.query(`DELETE FROM users WHERE id=${id}`,function(error,result){
+    if(error){
+      response.getResponse(false,true,"Error",error)
+      res.json(response.responesMessage());
+      return;
+    }
+    con.query(`DELETE FROM users_contacts WHERE user_name='${username}' OR contact_name='${username}'`,function(error,result){
+      if(error){
+        response.getResponse(false,true,"Error",error)
+        res.json(response.responesMessage());
+        return;
+      }
+      con.query(`DELETE FROM messages WHERE (users LIKE '%,${username}%' OR users LIKE '%${username},%')`,function(error,result){
+        if(error){
+          response.getResponse(false,true,"Error",error)
+          res.json(response.responesMessage());
+          return;
+        }
+        response.getResponse(true,false,"User Deleted",result)
+        res.json(response.responesMessage());
+        return;
+      })
+    })
+  })
+})
 module.exports = router;
