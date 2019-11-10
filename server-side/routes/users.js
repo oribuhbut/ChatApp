@@ -1,77 +1,66 @@
 var express = require('express');
 var router = express.Router();
 var mysql = require('mysql');
+var bcrypt = require('bcryptjs');
 var response = require('./../modules/response');
 var con = mysql.createPool({
   connectionLimit : 100,
-  host: "",
-  user: "",
-  password: "",
-  database:"",
+  host: "us-cdbr-iron-east-05.cleardb.net",
+  user: "ba9bfd6c223252",
+  password: "cd294583",
+  database:"heroku_4317d32f10002e9",
   charset:"utf8mb4"
 });
 
 /* GET users listing. */
-router.get('/', function(req, res, next) {
-  let userName= req.query.username;
-  let Password = req.query.password;
-    if(userName.length<1||Password.length<1){
+router.post('/', function(req, res, next) {
+  let username= req.body.username;
+  let password = req.body.password;
+    if(!username.length||!password.length){
       response.getResponse(false,true,"חלק מהשדות חסרים",[]);
       res.json(response.responesMessage());
       return;
     }
-      con.query('SELECT * FROM users WHERE username=? and password =?',[userName,Password],function(error,result,fields){
-        if(result.length>0){
-          req.session.userDetails = result[0];
-          req.session.save;
-          response.getResponse(true,false,"משתמש התחבר בהצלחה",result);
-          res.json(response.responesMessage());
-          return;
-        }
-          response.getResponse(false,true,"שם משתמש או סיסמה לא נכונים",error);
-          res.json(response.responesMessage());
-      })
-})
-
-router.get('/checklog',function(req,res,next){
-  if(req.session.userDetails){
-    response.getResponse(true,false,"user still logged",req.session.userDetails);
+con.query('SELECT * FROM users WHERE username=?',[username],function(error,result){
+  if(error){
+    response.getResponse(false,true,"שגיאה",error);
     res.json(response.responesMessage());
     return;
   }
-  else{
-    response.getResponse(false,true,"user not logged anymore",[]);
+  if(!result.length){
+    response.getResponse(false,true,"שם מתשמש או סיסמה לא נכונים",error);
     res.json(response.responesMessage());
+    return;
   }
+    bcrypt.compare(password,result[0].password,function(err,user){
+      if(user){
+        response.getResponse(true,false,"משתמש התחבר בהצלחה",result);
+        res.json(response.responesMessage())
+        return;
+      }
+      response.getResponse(false,true,"סיסמא לא נכונה",err)
+      res.json(response.responesMessage());
+      return;
+    })
+  })
 })
 
 router.get('/getUsers', function(req, res, next) {
-  let text = "";
   let username= req.query.username;
-  con.query('SELECT contact_name FROM users_contacts WHERE user_name=? and status_friend=1',[username],function(error,result,fields){
-    if(result.length == 0){
-      response.getResponse(false,true,"אין לך אנשי קשר",error);
-      res.json(response.responesMessage());
-      return;
-    }
-    for(let i=0; i<result.length;i++){
-      if(i==result.length-1){
-        text+= "'"+result[i].contact_name+"'";
-      }
-      else{
-        text+="'"+result[i].contact_name+"'" + ","
-      }
-    }
-      con.query(`SELECT id,name,photo,username FROM users WHERE username in (${text})`,function(error,result,fields){
+      con.query(`SELECT id,name,photo,username FROM users WHERE username in (SELECT contact_name FROM users_contacts WHERE user_name=? and status_friend=1)`,[username],function(error,result,fields){
         if(error){
           response.getResponse(false,true,"שגיאה",[]);
           res.json(response.responesMessage());
           return;
         }
+        if(!result.length){
+        response.getResponse(true,false,"אין לך אנשי קשר",result);
+        res.json(response.responesMessage());
+        return;
+        }
         response.getResponse(true,false,"התקבלו",result);
         res.json(response.responesMessage());
       });
-  })
 })
   
 
@@ -79,7 +68,7 @@ router.get('/newMessages',function(req,res,next){
 let id = req.query.id;
 console.log(id)
 con.query(`SELECT * FROM messages WHERE id = ${id}`,function(error,result){
-  if(result.length == 0){
+  if(!result.length){
     response.getResponse(false,true,"Error",error)
     res.json(response.responesMessage());
     return;
@@ -99,7 +88,13 @@ router.put('/', function(req, res, next) {
   let photo = req.body.photo;
   let age = req.body.age;
 
-  con.query('INSERT INTO users (name,username,password,gender,email,photo,age) VALUES(?,?,?,?,?,?,?)',[name,username,password,gender,useremail,photo,age],function(error,result,fields){
+bcrypt.hash(password,10,function(err,hash){
+  if(err){
+    response.getResponse(true,false,"bcrypt cant hash",err)
+    res.json(response.responesMessage())
+    return;
+  }
+  con.query('INSERT INTO users (name,username,password,gender,email,photo,age) VALUES(?,?,?,?,?,?,?)',[name,username,hash,gender,useremail,photo,age],function(error,result,fields){
     if(error){
       response.getResponse(false,true,"שם משתמש או אימייל כבר בשימוש",error)
       res.json(response.responesMessage());
@@ -109,6 +104,7 @@ router.put('/', function(req, res, next) {
     response.getResponse(true,false,"משתמש נרשם בהצלחה",result)
     res.json(response.responesMessage())
   })
+})
 });
 
 router.get('/contacts',function(req,res,next){
@@ -148,24 +144,14 @@ filterText = "'Male','Female'"
       })
       return;
     }
-    let text ="";
-      for(let i=0;i<result1.length;i++){
-        if(i==0){
-          text+= "'"+result1[i].contact_name+"'"
-        }
-        else{
-          text+= ",'"+ result1[i].contact_name +"'"
-        }
-      }
-    con.query(`SELECT * FROM users WHERE username NOT IN(${text},'${username}') and gender IN(${filterText})`,function(error,result){
-      console.log("text :", text)
+    con.query(`SELECT * FROM users WHERE username NOT IN(SELECT contact_name FROM users_contacts WHERE user_name='${username}' and status IN(1,2)) and gender IN(${filterText}) and username !='${username}'`,function(error,result){
       console.log("changes apply")
       if(error){
         response.getResponse(false,true,"שגיאה",[])
         res.json(response.responesMessage())
         return;
       }
-      if(result.length < 1){
+      if(!result.length){
         response.getResponse(false,true,"אין תוצאות",[])
         res.json(response.responesMessage())
         return;
