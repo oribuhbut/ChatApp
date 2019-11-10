@@ -14,14 +14,13 @@ $(document).ready(function(){
     socket.on('newmatch',function(result){
         if(result.result.username == tempObj.username){
         getUsers(tempObj.username);
-      alertify.alert().setContent(`<h1 class="display-4 lead">YAY!</h1><br><p class="lead">יש לך התאמה חדש עם</p><strong>${result.result.tempObj.name}!!</strong>`).show();
+      alertify.alert().setContent(`<h1 class="display-4 lead">YAY!</h1><br><p class="lead intro">יש לך התאמה חדש עם</p><strong>${result.result.tempObj.name}!!</strong>`).show();
       $(".ajs-header").html("");
         }
     })
     socket.on('usersocket',function(){
         getUsers(tempObj.username);
     })
-    checkIfUserLogged()
     $(".active").css("display","block");
 })
 
@@ -41,35 +40,6 @@ $("#returnFromRegister").on("click",function(){
     $(".tab-item-1").show();
 })
 
-//check if user is logged
-
-function checkIfUserLogged(){
-    fetch('https://geminichat.herokuapp.com/users/checklog',{
-        credentials:'include' 
-    })
-    .then((result)=>{
-        return result.json();
-    })
-    .then((result)=>{
-        if(result.error === true ){
-            return; 
-        }
-        else{
-            tempObj = result.data[0];
-            $("#userTitleName").text(result.data[0].name)
-            $("#profileImg").attr("src",result.data[0].photo);
-            $("#alertMessage1").hide();
-            $(".tab-item-1").hide()
-            $(".tab-item-3").show()
-            getUsers(username);
-        }
-    })
-    .catch((err)=>{
-        console.log("Error",err);
-        return;
-    })
-}
-
 //back to main page
 
 $("#backToMainPage").on("click",function(){
@@ -79,35 +49,49 @@ $("#backToMainPage").on("click",function(){
 
 //register photo preview
 
-function previewFile() {
-    var preview = document.getElementById('previewImg');
-    var file    = document.getElementById('photo1').files[0];
-    var reader  = new FileReader();
-  
+$("#registerPhoto").on("change",function(){
+    let preview = $('#previewImg');
+    let file=$('#registerPhoto')[0].files[0];
+    let reader  = new FileReader();
     reader.onloadend = function () {
-      preview.src = reader.result;
+      $('#previewImg').attr("src",reader.result);
       tempImg = reader.result;
     }
-  
     if (file) {
       reader.readAsDataURL(file);
     } else {
-      preview.src = "";
+       $('#previewImg').attr("src","");
     }
-  }
+})
 
 // register button
-$("#loginBtn").on("click",function(){
-tempImg="";
-$("#email").show();
-$("#email").val("")
-$("#name").val("");
-$("#userName").val("");
-$("#password").val("");
-$(".tab-item-1").hide()
-$(".tab-item-2").show()
-$(".tab-item-1").removeClass("active");
-$(".tab-item-2").addClass("active");
+
+$("#register").on("click",function(){
+    $("#registerPhoto").val("");
+    tempImg="";
+    $('#previewImg').attr("src","");
+    $("#email").val("")
+    $("#name").val("");
+    $("#userName").val("");
+    $("#password").val("");
+    $(".tab-item-1").hide()
+    $(".tab-item-2").show()
+})
+
+// log Out Function
+
+$("#logOutFunction").on("click",function(){
+    $("#profileImg").attr("src","");
+    $("#userAdder").val("");
+    $("#contactName").text("")
+    $("#chatUsersList").html("");
+    $("#messages").html("");
+    $("#loginUserName").val("");
+    $("#loginPassword").val("");
+    $(".tab-item-3").hide();
+    $(".tab-item-1").show();
+    $(".chatClass").hide();
+    tempId=null;
 })
 
 //login function
@@ -115,32 +99,33 @@ $(".tab-item-2").addClass("active");
 $("#loginButton").on("click",function(){
     let username = $("#loginUserName").val();
     let password = $("#loginPassword").val();
-    if(username.length<1||password.length<1){
-        $("#alertMessage1").find("span").text("חלק מהשדות חסרים");
-        $("#alertMessage1").show(500);
+    if(!username.length||!password.length){
+        $("#loginMessage").find("span").text("חלק מהשדות חסרים");
+        $("#loginMessage").show(500);
         return;
     }
     $(".tab-item-1").hide()
-    $("#loader2").show()
+    $("#mainLoader").show()
     $.ajax({
-        url:`https://geminichat.herokuapp.com/users/?username=${username}&password=${password}`,
-        type:"GET",
+        url:`https://geminichat.herokuapp.com/users/?`,
+        type:"POST",
+        data:{username:username,password:password},
         success:function(result){
-            if(result.error == true ){
-                $("#loader2").hide()
-                 $(".tab-item-1").show()
-                $("#alertMessage1").find("span").text(result.message);
-                $("#alertMessage1").show(500);
+            if(result.error){
+                $("#mainLoader").hide()
+                $(".tab-item-1").show()
+                $("#loginMessage").find("span").text(result.message);
+                $("#loginMessage").show(500);
                 return; 
             }
             else{
                 tempObj = result.data[0];
                 $("#userTitleName").text(result.data[0].name)
                 $("#profileImg").attr("src",result.data[0].photo);
-                $("#alertMessage1").hide();
+                $("#loginMessage").hide();
                 $(".tab-item-1").hide()
                 $(".tab-item-3").show()
-                $("#loader2").hide()
+                $("#mainLoader").hide()
                 getUsers(username);
                 setTimeout(function(){alertify.alert().setContent(`<h3>רק מזכירים לכם</h3><br><p class="lead">ניתן לשנות את הגדרות החיפוש בכניסה להגדרות המשתמש</p>`).show(); $(".ajs-header").html("");},3000);
             }
@@ -158,14 +143,13 @@ function getUsers(username){
         url:`https://geminichat.herokuapp.com/users/getUsers/?username=${username}`,
         type:"GET",
         success:function(result){
+            console.log(result)
             $("#chatUsersList").html("");
             if(result.data == null){
                 return;
             }
-            for(let i=0;i<result.data.length;i++){
-                let user = $(`<a onclick=getMessages("${result.data[i].username}","${result.data[i].photo}") class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"><h6 class="lead">${result.data[i].name}</h6><img data-toggle="modal" data-target="#myModal" onclick=showProfileImg("${result.data[i].photo}") style="border-radius:50%; width:22%; height:54px;" src="${result.data[i].photo}"></img></a>`);
-                $("#chatUsersList").append(user);
-            }
+            printContacts(result);
+            return;
         },
         error:function(xhr){
             console.log("Error" ,xhr);
@@ -173,30 +157,24 @@ function getUsers(username){
     })
 }
 
-// log Out Function
+//Print Contacts
+function printContacts(result){
+for(let i=0;i<result.data.length;i++){
+        let user = $(`<a onclick=getMessages("${result.data[i].username}","${result.data[i].photo}") class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"><h6 class="lead">${result.data[i].name}</h6><img data-toggle="modal" data-target="#myModal" onclick=showProfileImg("${result.data[i].photo}") style="border-radius:50%; width:22%; height:54px;" src="${result.data[i].photo}"></img></a>`);
+        $("#chatUsersList").append(user);
+    }
+}
 
-$("#logOutFunction").on("click",function(){
-    $("#profileImg").attr("src","");
-    $("#userAdder").val("");
-    $("#alertMessage3").hide();
-    $("#contactName").text("")
-    $("#chatUsersList").html("");
-    $("#messages").html("");
-    $("#loginUserName").val("");
-    $("#loginPassword").val("");
-    $(".tab-item-3").hide();
-    $(".tab-item-1").show();
-    $(".chatClass").hide();
-    tempId=null;
-})
 
 //register function 
 
 $("#registerButton").on("click",function(){
+    
     $("#loginUserName").val("");
     $("#loginPassword").val("")
-    $("#alertMessage1").hide();
-    $("#alertMessage2").hide();
+    $("#loginMessage").hide();
+    $("#registerMessage").hide();
+    
     let name = $("#name").val();
     let userName= $("#userName").val();
     let password = $("#password").val();
@@ -206,68 +184,59 @@ $("#registerButton").on("click",function(){
     let gender = $("#gender").val();
     let email = $("#email").val()
     let photo = tempImg;
-    let regex =  /[\+\&\#\'\"\/\\]/;
     
-    if(userName.match(regex)){
-    $("#alertMessage2").find("span").text("שם משתמש לא יכול להכיל את התווים הבאים:'+&#/ ");
-    $("#alertMessage2").show();
+    let regexUserName =  /[\+\&\#\'\"\/\\]/;
+    let regexEmail = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+    
+   if(!name.length||!userName.length||!password.length||!email.length||!photo.length)
+    {
+        $("#registerMessage").find("span").text("חלק מהשדות חסרים");
+        $("#registerMessage").show();
+        return;
+    }
+    
+    if(userName.match(regexUserName)){
+    $("#registerMessage").find("span").text("שם משתמש לא יכול להכיל את התווים הבאים:'+&#/ ");
+    $("#registerMessage").show();
     return;  
     }
-     if (!/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email))
+     if (!email.match(regexEmail))
   {
-    $("#alertMessage2").find("span").text("אימייל לא תקין");
-    $("#alertMessage2").show();
+    $("#registerMessage").find("span").text("אימייל לא תקין");
+    $("#registerMessage").show();
     return; 
   }
     
     let today = new Date();
     if(validAgeChecker/31536000000 < 18.013){
-        $("#alertMessage2").find("span").text("עלייך להיות מעל גיל 18 כדי להירשם");
-        $("#alertMessage2").show();
+        $("#registerMessage").find("span").text("עלייך להיות מעל גיל 18 כדי להירשם");
+        $("#registerMessage").show();
         return;
     }
     
-    if(photo.length < 1){
-        $("#alertMessage2").find("span").text("חסרה תמונה");
-        $("#alertMessage2").show();
-        return;
-    }
-    if(name.length==0||userName.length==0||password.length==0||email.length==0)
-    {
-        $("#alertMessage2").find("span").text("חלק מהשדות חסרים");
-        $("#alertMessage2").show();
-        return;
-    }
     if(userName.indexOf(" ") > 0){
-        $("#alertMessage2").find("span").text("שם משתמש לא יכול להכיל רווח");
-        $("#alertMessage2").show();
+        $("#registerMessage").find("span").text("שם משתמש לא יכול להכיל רווח");
+        $("#registerMessage").show();
         return;
     }
-    $("#loader1").show();
+    
+    $("#registerLoader").show();
+    
     $.ajax({
         url:`https://geminichat.herokuapp.com/users/?`,
         type:"PUT",
         data:{name:name,username:userName,password:password,gender:gender,photo:photo,useremail:email,age:fixedAge},
         success:function(result){
-            $("#loader1").hide();
-            if(result.error==true){
+            $("#registerLoader").hide();
+            if(result.error){
                 $("#userName").val("");
                 $("#email").val("");
-                $("#email").show()
-                $("#alertMessage2").find("span").text(result.message);
-                $("#alertMessage2").show()
-                $("#loader1").hide();
+                $("#registerMessage").find("span").text(result.message);
+                $("#registerMessage").show()
+                $("#registerLoader").hide();
                 return;
             }
-            if(result == "Email Key Is Wrong"){
-                $("#alertMessage2").find("span").text("קוד אימות לא תקין");
-                $("#alertMessage2").show()
-                $("#loader1").hide();
-                return;
-            }
-            $("#email").val("");
-            $("#previewImg").attr("src","");
-            $("#alertMessage2").hide();
+            $("#registerMessage").hide();
             $(".tab-item-2").hide()
             $(".tab-item-1").show()
         },
@@ -281,7 +250,7 @@ console.log("Error",xhr);
 //edit user Function
 
 $("#editUser").on("click",function(){
-    $("#loader").hide();
+    $("#mainLoader").hide();
     let photo = $("#profileImg").attr("src")
     $("#previewEditImg").attr("src",photo);
     $(".tab-item-3").hide();
@@ -292,31 +261,31 @@ $("#editUser").on("click",function(){
 // loading trigger
 
 $("#loadingTrigger,#searchNewPeopleButton").on("click",function(){
-    $("#loader").show();
+    $("#mainLoader").show();
     $("#exitCarousel").hide()
 })
 
 
 // //edit photo
 
-function editPhoto(){
-    $("#loader").show();
-    var preview = document.getElementById('previewEditImg');
-    var file    = document.getElementById('photo2').files[0];
+$("#photoEditInput").on("change",function(){
+    $("#mainLoader").show();
+    let preview = $("#previewEditImg");
+    let file = $("#photoEditInput")[0].files[0];
     var reader  = new FileReader();
   
     reader.onloadend = function () {
-      preview.src = reader.result;
+      $("#previewEditImg").attr("src",reader.result);
       $.ajax({
         url:`https://geminichat.herokuapp.com/users/editphoto/?`,
         type:"POST",
         data:{id:tempObj.id,photo:reader.result},
         success:function(result){
-            $("#loader").hide();
-$("#profileImg").attr("src",reader.result);
-$(".tab-item-5").hide();
-$(".tab-item-3").show();
-socket.emit("useredit")
+            $("#mainLoader").hide();
+            $("#profileImg").attr("src",reader.result);
+            $(".tab-item-5").hide();
+            $(".tab-item-3").show();
+            socket.emit("useredit")
         },
         error:function(xhr){
             console.log("Error",xhr);
@@ -327,11 +296,13 @@ socket.emit("useredit")
     if (file) {
       reader.readAsDataURL(file);
     } else {
-      $("#loader").hide();
+      $("#mainLoader").hide();
       let photo = $("#profileImg").attr("src");
       preview.src = photo;
     }
-}
+})
+ 
+
 
 //delete account
 
@@ -342,10 +313,8 @@ $("#deleteAccount").on("click",function(){
         data:{id:tempObj.id,username:tempObj.username},
         success:function(result){
             if(result.error){
-                console.log(result);
                 return;
             }
-console.log(result);
 socket.emit("useredit")
 $(".tab-item-5").hide();
 $(".tab-item-1").show();
@@ -360,34 +329,26 @@ $(".tab-item-1").show();
 
 function addUser(username){
     $("#exitCarousel").hide()
-    $("#loader").show()
+    $("#mainLoader").show()
     $.ajax({
         url:`https://geminichat.herokuapp.com/users/addcontact/?`,
         type:"PUT",
         data:{loggedUser:tempObj.username,contactUsername:username},
         success:function(result){
-            if(result.error == true)
-            {
-                $("#alertMessage3").find("span").text(result.message);
-                $("#alertMessage3").show(500);
-                return;
-            }
             if(result.message == "match"){
                 $("#animate").text(`! You Have A New Match With ${username}`)
                 $("#animate").fadeIn(2000,function(){
                     $("#animate").hide(function(){
                         $("#chatUsersList").html("");
-                        $("#alertMessage3").hide();
                         $("#userAdder").val("");
                     });
-                    socket.emit('match',{username,tempObj});
                     getUsers(tempObj.username);
+                    socket.emit('match',{username,tempObj});
                     searchNewContact();
                     return;
                 });
             }
             else{
-                $("#alertMessage3").hide();
                 $("#userAdder").val("");
                 searchNewContact();
                 return;
@@ -403,7 +364,7 @@ function addUser(username){
 
 function ignoreUser(username){
     $("#exitCarousel").hide()
-       $("#loader").show()
+       $("#mainLoader").show()
     $.ajax({
         url:`https://geminichat.herokuapp.com/users/ignorecontact/?`,
         type:"PUT",
@@ -443,7 +404,7 @@ function searchNewContact(){
         success:function(result)
         {
             $("#exitCarousel").show()
-            $("#loader").hide()
+            $("#mainLoader").hide()
             if(result.error){
                 $("#exitCarousel").hide()
                 $("#carouselModal").html(`<h4 id="carouselText" class='text-center text-white'>אין אף אחד חדש בסביבה</h4>`);
@@ -534,10 +495,7 @@ $.ajax({
     success:function(result){   
         $(".tab-item-3").hide()
         $(".tab-item-4").show()
-        let fix = result.data[0].users_messages
-        let fix1 = fix.slice(2,result.data[0].users_messages.length)
-        let fixedresult = "["+fix1+"]";
-        let a = JSON.parse(fixedresult);
+let messages = convertMessages(result.data[0].users_messages);
         tempId = result.data[0].id;
         $("#contactName").text(params[0])
         $("#contactImg").attr("src",params[1])
@@ -551,11 +509,11 @@ $.ajax({
         });
         });
           $("html, body").animate({ scrollTop: $(document).height() }, "slow");
-          if(a.length==0){
+          if(!messages.length){
             $("#messages").html("")
             return;
         }
-        printMessages(a);
+        printMessages(messages);
     },
     error:function(xhr){
         console.log("Error",xhr);
@@ -590,11 +548,8 @@ $.ajax({
     url:`https://geminichat.herokuapp.com/users/messages/?first=${tempObj.id}&second=${tempId}&message=${message}`,
     type:"PUT",
     success:function(result){
-        let fix = result.data[0].users_messages
-        let fix1 = fix.slice(2,result.data[0].users_messages.length)
-        let fixedresult = "["+fix1+"]";
-        let a = JSON.parse(fixedresult);
-        printMessages(a);
+        let messages = convertMessages(result.data[0].users_messages);
+        printMessages(messages);
         socket.emit('message',tempId)
     },
     error:function(xhr){
@@ -629,12 +584,9 @@ function checkForNewMessages(id)
         type:"GET",
         success:function(result){
 
-        let fix = result.data[0].users_messages
-        let fix1 = fix.slice(2,result.data[0].users_messages.length)
-        let fixedresult = "["+fix1+"]";
-        let a = JSON.parse(fixedresult);
+        let messages = convertMessages(result.data[0].users_messages);
             if(tempId==id){
-                printMessages(a);
+                printMessages(messages);
                 $('#messages').stop().animate({
                     scrollTop: $('#messages')[0].scrollHeight
             }, 600);
@@ -645,4 +597,12 @@ function checkForNewMessages(id)
             console.log("Error",xhr);
         }
     })
+}
+
+// converting the result of string from database into array of messgages.
+
+function convertMessages(data){
+        let slice = data.slice(2,data.length)
+        let fixedresult = "["+slice+"]";
+        return JSON.parse(fixedresult);
 }
