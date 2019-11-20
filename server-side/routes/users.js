@@ -4,15 +4,6 @@ var mysql = require('mysql');
 var bcrypt = require('bcryptjs');
 var response = require('./../modules/response');
 var jwt = require('jsonwebtoken');
-var secret = "Mmd233lfKFdsfEWMcFR432FGkf4kfsldk53KDbbFGkfKgK43"
-var con = mysql.createPool({
-  connectionLimit: 100,
-  host: "us-cdbr-iron-east-05.cleardb.net",
-  user: "ba9bfd6c223252",
-  password: "cd294583",
-  database: "heroku_4317d32f10002e9",
-  charset: "utf8mb4"
-});
 
 /* GET users listing. */
 router.post('/', function (req, res, next) {
