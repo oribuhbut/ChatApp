@@ -14,4 +14,8 @@ login into your new account and search for new people around.
 
 if you have a new match start to chat!
 
+# tools:
+
+Jquery and Node.JS , ajax calls between client side to server side,
+validations using bcrypt and jwt and Websocket using socket.io library.
 
