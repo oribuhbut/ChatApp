@@ -376,10 +376,9 @@ function addUser(username){
                     $("#animate").hide(function(){
                         $("#chatUsersList").html("");
                     });
-                    getUsers(tempObj.username);
                     socket.emit('match',{username,tempObj});
                     searchNewContact();
-                    return;
+                    return getUsers(tempObj.username);
                 });
             }
             else{
