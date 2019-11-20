@@ -1,8 +1,18 @@
 var express = require('express');
 var router = express.Router();
+var mysql = require('mysql');
 var bcrypt = require('bcryptjs');
 var response = require('./../modules/response');
-var con = require('./../modules/sqlConnection');
+var jwt = require('jsonwebtoken');
+var secret = "Mmd233lfKFdsfEWMcFR432FGkf4kfsldk53KDbbFGkfKgK43"
+var con = mysql.createPool({
+  connectionLimit: 100,
+  host: "us-cdbr-iron-east-05.cleardb.net",
+  user: "ba9bfd6c223252",
+  password: "cd294583",
+  database: "heroku_4317d32f10002e9",
+  charset: "utf8mb4"
+});
 
 /* GET users listing. */
 router.post('/', function (req, res, next) {
@@ -25,6 +35,11 @@ router.post('/', function (req, res, next) {
     }
     bcrypt.compare(password, result[0].password, function (err, user) {
       if (user) {
+        let userDetails = {
+          username:result[0].username
+        }
+        var token = jwt.sign({exp: Math.floor(Date.now() / 1000) + (60 * 1), userDetails }, secret);
+        result.push(token);
         response.getResponse(true, false, "משתמש התחבר בהצלחה", result);
         res.json(response.responesMessage())
         return;
@@ -33,6 +48,32 @@ router.post('/', function (req, res, next) {
       res.json(response.responesMessage());
       return;
     })
+  })
+})
+
+router.post('/checklog',function(req,res,next){
+  const { token } = req.body;
+  try {
+    var decoded = jwt.verify(token, secret);
+  } catch(err) {
+    response.getResponse(false, true, "לא נמצא משתמש", err)
+    res.json(response.responesMessage());
+    return;
+  }
+  con.query(`SELECT * FROM users WHERE username=?`,[decoded.userDetails.username],function(error,result){
+    if(error){
+      response.getResponse(false, true, "שגיאה", error)
+      res.json(response.responesMessage());
+      return;
+    }
+    if(!result.length){
+      response.getResponse(false, true, "לא נמצא המשתמש", error)
+      res.json(response.responesMessage());
+      return;
+    }
+    response.getResponse(true, false, "המשתמש נמצא", result)
+    res.json(response.responesMessage());
+    return;
   })
 })
 
