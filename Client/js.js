@@ -549,6 +549,8 @@ function getMessages(...params) {
   })
 }
 
+// show "send" icon
+
 $("#messageContent").on("keyup", function () {
   let message = $("#messageContent").val()
   if (message.length > 0) {
@@ -559,6 +561,8 @@ $("#messageContent").on("keyup", function () {
   }
 })
 
+
+// send message function
 
 $("#sendMessage").on("click", function () {
   let message = $("#messageContent").val();
@@ -606,6 +610,8 @@ function printMessages(result) {
     scrollTop: $('#messages')[0].scrollHeight
   }, 600);
 }
+
+// get new messages
 
 function NewMessages(id) {
   $.ajax({
