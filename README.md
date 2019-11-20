@@ -18,4 +18,5 @@ if you have a new match start to chat!
 
 Jquery and Node.JS , ajax calls between client side to server side,
 validations using bcrypt and jwt and Websocket using socket.io library.
+bootstrap css and alertifyjs for UI.
 
