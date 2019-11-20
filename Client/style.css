@@ -8,10 +8,29 @@
   }
 }
 
+@media screen and (max-width: 800px) {
+    .container{
+        border-radius:0px !important;
+    }
+}
+
+@media screen and (max-width: 767px) {
+    .carousel-caption {
+       display: block !important;
+    }
+}
+
+
 body{
-    direction: rtl;
-    text-align: right;
+direction: rtl;
+text-align: right;
 font-family: 'Rubik', sans-serif !important;
+background-color:#172B4D;
+overflow:hidden !important;
+}
+
+.jumbotron{
+    border-radius:0px !important;
 }
 
 html, body {
@@ -21,6 +40,7 @@ html, body {
 }
 
 .carouselClass{
+    margin:0px auto;
     width: 400px;
 }
 
@@ -29,20 +49,18 @@ html, body {
     height: 337px;
   }
   
-  /* .carousel-inner{
-    max-height: 700px !important;
-  } */
-
+.container{
+    max-width:800px;
+    min-height:500px;
+    max-height:600px;
+    background-color:white;
+    border-radius:10px;
+    overflow:auto;
+}
   .carousel-caption {
     position: relative;
     top:0;
     margin-right: -25%;
-}
-
-  @media screen and (max-width: 767px) {
-    .carousel-caption {
-       display: block !important;
-    }
 }
 
 
@@ -56,11 +74,11 @@ html, body {
 }
 
 .fa-heart:hover{
-    color: rgb(155, 56, 56);
+    color: rgb(0, 138, 45);
 }
 
 .fa-times:hover{
-    color: rgb(17, 10, 10);
+    color: rgb(155, 56, 56);
 }
 
 .tab-item
@@ -82,28 +100,21 @@ color: gray;
     cursor: pointer;
 }
 
-html
-{
-    margin-top: -170px;
-}
-body{
-background-color:rgb(230, 230, 230);
-    margin-top: 170px;
-}
-.login
+
+.register, .login
 {
     margin: 0px auto !important;
-    margin-top: 200px;
     padding: 15px;
 }
 
 .full-height{
-    position:absolute;
-    top:0;
-    bottom:0;
-    left:0;
-    right:0;
+    position:fixed !important;
+    top:0 !important;
+    bottom:0 !important;
+    left:0 !important;
+    right:0 !important;
 }
+
 
 .chatClass
 {
@@ -126,20 +137,11 @@ input[type=number]:focus,
 [type=password].form-control:focus, 
 [type=email].form-control:focus, 
 [type=tel].form-control:focus, 
+
 [contenteditable].form-control:focus {
   box-shadow: inset 0 -1px 0 #ddd;
 }
-.button1
-{
-    position: absolute;
-    bottom: 10px;
-    right: 10px;
-    cursor: pointer;
-}
-.button1:hover
-{
-color: rgb(121, 121, 121);
-}
+
 .messagesClass
 {
     background-color:rgb(252, 252, 252);
@@ -150,9 +152,6 @@ color: rgb(121, 121, 121);
     height: 82%;
 }
 
-#messageContent{
-margin-bottom:0px !important;
-}
 
 .messageBox div
 {
@@ -212,10 +211,8 @@ div.messageBox1{
 div.messageBox{
     text-align: right;
 }
-.date
-{
-    font-size: 9px;
-}
+
+
 ::-webkit-scrollbar {
     width: 0px;
   }
@@ -223,6 +220,7 @@ div.messageBox{
       text-align: center;
       font-weight: 600;
       color: rgb(70, 70, 70);
+      padding:8px;
   }
 
   #chatUsersList{
@@ -259,19 +257,6 @@ div.messageBox{
     top: 0;
     opacity: 0;
   }
-  
-
-  .LogOutClass{
-      cursor: pointer;
-  }
-  .LogOutClass:hover{
-      color: gray;
-  }
-
-  div .modal-body{
-      padding: 0px;
-      border-radius:50%;
-  }
 
   #modalImage{
       border-radius: 50%;
@@ -285,9 +270,6 @@ div.messageBox{
       border:none;
   }
 
-  .myclass{
-      top: 1100px;
-  }
   
 .loader {
 z-index:100;
