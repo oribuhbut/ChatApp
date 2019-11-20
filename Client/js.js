@@ -1,8 +1,4 @@
-var tempObj = {};
-var tempImg = ""
-var tempId;
-var tempUser;
-var socket;
+var tempObj,tempImg,tempId,tempUser,socket;
 
 $(document).ready(function () {
   checkLog()
